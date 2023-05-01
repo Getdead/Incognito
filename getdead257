@@ -1,0 +1,67 @@
+ 
+static/script/index.js
+@@ -28,6 +28,34 @@ window.app = new App();
+
+app.bare = new Ultraviolet.BareClient(new URL(__uv$config.bare, window.location));
+
+// You can add more search engines if you want
+app.searchProviders = {
+    google: {
+        mapQuery: (query) => `http://google.com/complete/search?q=${query}&client=${(["Chrome", "Firefox", "Safari"].filter(c => navigator.userAgent.includes(c))[0] || "Chrome").toLowerCase()}`,
+        parseResponse: (res) => JSON.parse(res)[1]
+    },
+    ddg: {
+        mapQuery: (query) => `https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}`,
+        parseResponse: (res) => JSON.parse(res).map(ac => ac.phrase)
+    },
+    bing: {
+        mapQuery: (query) => `https://www.bing.com/AS/Suggestions?qry=${encodeURIComponent(query)}&cvid=%01&bareServer=`,
+        parseResponse: (res) => ([...res.matchAll(/<span class="sa_tm_text">(.*?)<\/span>/g)]).map(phrase => phrase[1].replace(/<strong>|<\/strong>/g, ''))
+    },
+    brave: {
+        mapQuery: (query) => `https://search.brave.com/api/suggest?q=${encodeURIComponent(query)}`,
+        parseResponse: (res) => JSON.parse(res)[1]
+    },
+    startpage: {
+        mapQuery: (query) => `https://www.startpage.com/suggestions?q=${encodeURIComponent(query)}&segment=omnibox`,
+        parseResponse: (res) => JSON.parse(res).suggestions.map(ac => ac.text)
+    },
+    ecosia: {
+        mapQuery: (query) => `https://ac.ecosia.org/?q=${encodeURIComponent(query)}`,
+        parseResponse: (res) => JSON.parse(res).suggestions
+    }
+};
+
+switch(localStorage.getItem('incog||background')) {
+    case 'stars':
+        particlesJS.load('.particles', './json/stars.json');
+  11 changes: 6 additions & 5 deletions11  
+static/script/options.js
+@@ -48,12 +48,13 @@ async function options(app) {
+        { id: 'google', content: 'Google' },
+        { id: 'ddg', content: 'DuckDuckGo' },
+        { id: 'bing', content: 'Bing' },
+        { id: 'brave', content: 'Brave' }
+        { id: 'brave', content: 'Brave' },
+        { id: 'startpage', content: 'Startpage' }
+    ]
+
+    const searchEngineSuggestions = [
+        { id: 'ddg', content: 'DuckDuckGo' },
+        { id: 'brave', content: 'Brave' },
+        ...searchEngines,
+        { id: 'ecosia', content: 'Ecosia' },
+        { id: 'none', content: 'None' }
+    ]
+
+@@ -352,8 +353,8 @@ The about:blank script is based off of ABC by
+*/
+                        try {
+                            var page = window.open()
+                            page.document.body.innerHTML = `<iframe style="height:100%; width: 100%; border: none; position: fixed; top: 0; right: 0; left: 0; bottom: 0; border: none" sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-top-navigation allow-top-navigation-by-user-activation" src="` + window.location.href + `"></iframe>`
+                        } catch {}
+                            page.document.body.innerHTML = `<iframe style="height:100%; width: 100%; border: none; position: fixed; top: 0; right: 0; left: 0; bottom: 0; border: none" sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-top-navigation allow-top-navigation-by-user-activation" src="${window.location.href}"></iframe>`
+                        } catch {return}
+                        window.location.replace((localStorage.getItem('incog||ab') || 'https://google.com'))
+                        }
+                    }
